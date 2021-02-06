@@ -1,0 +1,271 @@
+---
+title: "Midterm One"
+author: "Fran M"
+date: "February 1, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE)
+opts_knit$set(root.dir =  "C: //Users/Jerel Francisco/Desktop/UC Davis/2) Winter 2021_UCDavis_Classes/ESP106/Mid-Term")
+
+cdata <- read.csv("conservationdata.csv")
+```
+In this midterm we will analyze some data on the conservation status of species in North America and spending under the Endangered Species Act. 
+
+**First read in the file conservationdata.csv**
+This has data on over 53,000 North American species - a unique ID number (speciesid), scientific name (species name), taxonomic grouping (i.e. what type of species it is, taxon), the conservation status of that species in North America, as estimated by the organization [NatureServe](https://www.natureserve.org/conservation-tools/conservation-rank-calculator) (conservatoin_status), and whether the species is listed as threated or endangered under the US Endangered Species Act (listed, a value of 1 indicates the species is listed, a value of 0 indicates it is not).
+
+
+The conservation status values can be interpreted as follows:
+
+1 - Critically Imperiled
+2 - Imperiled
+3 - Vulnerable
+4 - Apparently Secure
+5 - Secure
+UNK - Unknown
+Prob. Extinct - Probably Extinct
+Extinct - Extinct
+
+Answer the following questions, showing your "working" in the chunks of R code. Upload the R markdown file and knitted output to Canvas. 
+
+Make sure to add informative axis titles and, where appropriate, units to your answers.
+
+1. What fraction of species in the dataset are listed under the Endangered Species Act? (2 points)
+Around 3% of the species in the data set are listed under the Endanged Species Act.
+```{r}
+
+a <- as.data.frame(table(cdata$listed))
+a
+
+b <- sum(a$Freq)
+c <- 1617/b
+d <- c*100
+d
+```
+
+2. Make a table (i.e. data frame) giving the breakdown of species by taxonomic group (i.e. one column is the taxonomic group and the second column is what fraction of the dataset that group represents) (5 points)
+```{r}
+x<-  unique(cdata$taxon)
+x
+
+
+
+summary(cdata)
+l <- 53658
+
+
+
+#list(I)
+
+I <- cdata$taxon==("Invertebrates")
+Insum <- sum(I)[TRUE]
+inf <- Insum/l
+inf
+
+Fun <- cdata$taxon=="Fungi"
+Funsum <- sum(Fun)[TRUE]
+Funf <- Funsum/l
+Funf
+
+Fish <- cdata$taxon=="Fishes"
+Fishsum <- sum(Fish)[TRUE]
+Fishf <- Fishsum/l
+Fishf
+
+Amph <- cdata$taxon=="Amphibians"
+Amphsum <- sum(Amph)[TRUE]
+Amphf <- Amphsum/l
+Amphf
+
+Rep <- cdata$taxon=="Reptiles"
+Repsum <- sum(Rep)[TRUE]
+Repf <- Repsum/l
+Repf
+
+Plant <- cdata$taxon=="Plants"
+Plantsum <- sum(Plant)[TRUE]
+Plantf <- Plantsum/l
+Plantf
+
+Bird <- cdata$taxon=="Birds"
+Birdsum <- sum(Bird)[TRUE]
+Birdf <- Birdsum/l
+Birdf
+
+Mam <- cdata$taxon=="Mammals"
+Mamsum <- sum(Mam)[TRUE]
+Mamf <- Mamsum/l
+Mamf
+
+Pro <- cdata$taxon=="Protist"
+Prosum <- sum(Pro)[TRUE]
+Prof <- Prosum/l
+Prof
+
+tax_name <- c("Invertebrates","Fungi", "Fishes", "Amphibians", "Reptiles", "Plants","Birds", "Mammals","Protist")
+taxonf <- c(inf,Funf,Fishf,Amphf,Repf,Plantf,Birdf,Mamf,Prof)
+d <- data.frame(tax_name,taxonf)
+d
+
+```
+
+*Hint: Remember the query taxoncolumn==specific_taxon gives a vector of TRUE and FALSE corresponding to each row in the column. You can sum this up to get the total number in that taxon.* 
+
+You can use a for loop for this, but it is not required. 
+
+
+3. a) One interesting question is how the conservation status varies between different taxonomic groups. Make a plot showing the distribution of conservation status within each taxonomic group (4 points)
+
+*I tried to extract the columns using "stat="count"" however, I was unable to figure out how to use the function. I know your need to transform the data to count the amount of different conservation status per taxon. However, I was unable to figure out how to via stat="count" *
+```{r}
+
+library(ggplot2)
+
+ggplot(cdata, aes(y = conservation_status,x=taxon), y= stat_count)+
+  geom_point()
+ 
+
+
+
+
+```
+
+```{r}
+
+#Below I attempted to extract the conservation status of each taxonomic group. However, I did not know how to extract the individual conservation status by each taxonomic group.
+
+Inv <- cdata[which(cdata$taxon=="Invertebrates"),]
+ty <- Inv$conservation_status
+ty
+rt <- count(ty, vars("UNK"))
+
+#cdata[which(cdata$taxon=="Fungi"),]
+#cdata[which(cdata$taxon=="Fishes"),]
+#cdata[which(cdata$taxon=="Amphibians"),]
+#cdata[which(cdata$taxon=="Reptiles"),]
+#cdata[which(cdata$taxon=="Plants"),]
+#cdata[which(cdata$taxon=="Birds"),]
+#cdata[which(cdata$taxon=="Mammals"),]
+#cdata[which(cdata$taxon=="Protists"),]
+```
+
+
+*Hint: stat="count" (counts up and plots the number of observations, i.e. species, within each group) and position="fill" might both be useful here.* 
+
+
+b) Based on this graph, what is something we might be concerned about in terms of analyzing the data on conservation status, particularly for fungi and invertebrates? (1 point)
+
+**Answer:** 
+A large fraction of fungi and intervertebrate species have an unknown conservation status.
+
+
+**Now read in the second data file, spendingdata.csv**
+This dataset has a species id that matches the species id in the conservation dataset (speciesid), year, and the spending on conservation of that species (spending, in 2015 $, i.e. accounting for inflation)
+```{r}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE)
+opts_knit$set(root.dir =  "C: //Users/Jerel Francisco/Desktop/UC Davis/2) Winter 2021_UCDavis_Classes/ESP106/Mid-Term")
+sdata <- read.csv("spendingdata.csv")
+```
+
+
+4. Merge in the data from the conservation status data frame to the spending data frame, so that we have information on species names, taxonomic group, and conservation status with the spending data. (2 points)
+```{r}
+merge(sdata,cdata, all=FALSE)
+
+```
+ 
+
+
+*NOTE: If you have trouble with this step, there is a file mergeddata.csv on Canvas. You can download that and use for subsequent questions.* 
+
+5. a) Make a plot showing the distribution of spending in the year 2016 (3 points)
+
+**Answer**
+ Below is my futile attempt to make the desired plot.I tried using "geom_bar" and the "color=" formula but was unable to see what the speices that recieved the most funding. 
+```{r}
+mdata <- read.csv("mergeddata.csv")
+mdata
+n <- mdata[which(mdata$Year=="2016"),]
+
+
+#ggplot(n, aes(x=taxon ,y=spending,))+
+ # geom_point()+
+  #labs(x = "Species Identification", y = "Spending")
+
+
+n[order(n$spending, decreasing=TRUE),]
+
+```
+
+
+
+b) Notice the (very) long right tail on spending data - we spend a lot on a very small number of species. Identify the 3 species with the most spending in 2016. (3 points)
+
+**Answer**
+I was unable to make a plot to show what specific species received the most conservation funding. Since I was unable to find the answer via plotting I used the "order" formula to find the  top 3 funded species.I first isolated the 2016 column to create a dataset call "n" then used "n[order(n$spending, decreasing=TRUE),]"
+
+
+Look up these scientific names - what type of species are these?
+**Answer:** 
+The top 3 species with the most spending include Chinook Salmon (Oncorhynchus tshawytscha), Rainbow Trout (Oncorhynchus mykiss) and Coho Salmon (Oncorhynchus kisutch)
+
+6. Finally, we will use a regression to look at the relationship between spending, species and taxon,
+
+```{r}
+library(ggplot2)
+lspending <- log(mdata$spending,100)
+#lspending
+
+ggplot(mdata)+
+  geom_point(aes(x=Year, y=lspending, color=taxon))+
+ geom_smooth(method="lm", aes(x=Year, y=spending, color=taxon))
+
+
+```
+
+
+Because the distribution of spending is very right-skewed, it would be a good idea to take the logarithm of spending before using it in a regression. 
+Remember that log(0)=infinity. That means we have to drop observations with zero spending before taking the logarithm.
+
+a) Drop the rows where spending == 0 from the data frame and then make a new column with the logarithm (log()) of spending in each year. (2 points)
+
+*HINT: Remember you can drop rows from a dataframe using a negative index - ie. df[-c(rows to drop),]*
+
+```{r}
+
+
+
+ndata= mdata[-c(mdata$spending),]
+
+ggplot(ndata,aes(x=Year, y=lspending, color=taxon))+
+  geom_point(position="jitter")
+
+
+```
+
+
+*Optional: Look at the distribution of the logged spending variable and see how it looks different from the plot you made in question 5a*
+
+b) Run a regression of logged spending on taxonomic group and print the summary for the regression below (4 points)
+```{r}
+
+ggplot(ndata,aes(x=Year, y=spending, color=taxon))+
+  geom_point()+
+  geom_smooth(method="lm", formula=y~log(x), aes(x=Year, y=spending))
+
+```
+
+
+
+c) The way to interpret these coefficients are as the fractional difference in spending between the taxonomic group (e.g. Birds, Fishes etc) and the "dropped" group, where by default the dropped group will be Amphibians. Positive numbers indicate that group has more spent on it than Amphibians and negative numbers indicate it has less spent on it. 
+
+Based on your results in b, do we see statistically significant differences in spending between different taxonomic groups? If so, which kinds of species tend to have more spent on them and which have less? (2 points)
+
+**Answer:** 
+The species the species which tend to have the most spending include, fish, birds and mammals. The species which have least spent on them for conservation efforts include, plants. However, according to the data, more plant species are overwhelminly funded to be conserved. 
+
+7. Push your R markdown file to your Github repository (2 points)
